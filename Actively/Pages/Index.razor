@@ -1,9 +1,11 @@
-﻿@page "/"
-@using Microsoft.AspNetCore.Authorization
-@attribute [Authorize]
+﻿@page "/dashboard"
+@using Actively.Models
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<img src="@Settings.UserBasicDetail.UserAvatar" height="50" width="50" class="rounded-circle" />
+
+@Settings.UserBasicDetail.UserName
+
