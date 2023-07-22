@@ -1,0 +1,87 @@
+﻿@page "/login"
+@using Actively.Models
+@using Actively.Services
+@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
+@using Newtonsoft.Json
+@inject IAppService AppService;
+@inject NavigationManager NavManager;
+<h3>Login</h3>
+
+<EditForm Model="@loginModel" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <div class="form-group">
+        <label>UserName</label>
+        <input @bind-value="loginModel.UserName" class="form-control" placeholder="Enter UserName">
+        <ValidationMessage For="@(()=> loginModel.UserName)" />
+    </div>
+    <div class="mt-2 form-group">
+        <label>Password</label>
+        <input type="password" @bind-value="loginModel.Password" class="form-control" placeholder="Password">
+        <ValidationMessage For="@(()=> loginModel.Password)" />
+    </div>
+
+    <div class="mt-2 text-end">
+        <NavLink class="nav-link" href="registration">
+            <span>Click here to create new account?</span>
+        </NavLink>
+    </div>
+
+    <div class="text-center mt-2">
+        <button class="btn btn-primary" type="submit">
+            <span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+            SignIn
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    LoginModel loginModel = new();
+
+    private string _spinnerClass = "";
+    private async void Submit()
+    {
+
+        _spinnerClass = "spinner-border spinner-border-sm";
+        var response = await AppService.AuthenticateUser(loginModel);
+        if (response.IsSuccess)
+        {
+            var tokenResponse = JsonConvert.DeserializeObject<AuthenticateRequestAndResponse>(response.Content.ToString());
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsontoken = handler.ReadToken(tokenResponse.AccessToken) as JwtSecurityToken;
+
+            string userID = jsontoken.Claims.FirstOrDefault(f => f.Type == ClaimTypes.NameIdentifier).Value;
+            string name = jsontoken.Claims.FirstOrDefault(f => f.Type == ClaimTypes.Name).Value;
+            string surname = jsontoken.Claims.FirstOrDefault(f => f.Type == ClaimTypes.Surname).Value;
+            string userAvatar = jsontoken.Claims.FirstOrDefault(f => f.Type == "UserAvatar").Value;
+
+            string email = loginModel.UserName;
+
+            var userBasicDetail = new UserBasicDetail
+                {
+                    Email = email,
+                    UserName = name,
+                    Surname = surname,
+                    AccessToken = tokenResponse.AccessToken,
+                    RefreshToken = tokenResponse.RefreshToken,
+                    UserAvatar = !string.IsNullOrWhiteSpace(userAvatar) ? $"{Settings.BaseUrl}/{userAvatar}" : "",
+                    UserID = userID
+                };
+
+            string userBasicInfoStr = JsonConvert.SerializeObject(userBasicDetail);
+            await SecureStorage.SetAsync(nameof(Settings.UserBasicDetail), userBasicInfoStr);
+            Settings.UserBasicDetail = userBasicDetail;
+
+            NavManager.NavigateTo("/dashboard");
+        }
+        else
+        {
+            await App.Current.MainPage.DisplayAlert("Oops", "Invalid username or password", "OK");
+        }
+
+        _spinnerClass = "";
+        this.StateHasChanged();
+    }
+
+}

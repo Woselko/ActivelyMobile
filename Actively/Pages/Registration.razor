@@ -1,0 +1,154 @@
+﻿@page "/registration"
+@using Actively.Models
+@using Actively.Services
+@inject IAppService AppService;
+<h3>Registration</h3>
+
+<EditForm Model="@registrationModel" OnValidSubmit="Submit">
+    <DataAnnotationsValidator />
+    <div class="mb-2">
+        <img src="@_userAvatar" @onclick="DisplayAction" height="50" width="50" class="rounded-circle" />
+    </div>
+        <div class="form-group">
+        <label>User Name</label>
+        <input class="form-control" @bind-value="@registrationModel.Username" placeholder="Enter Username">
+        <ValidationMessage For="@(()=> registrationModel.Username)" />
+    </div>
+
+    <div class="form-group">
+        <label>First Name</label>
+        <input class="form-control" @bind-value="@registrationModel.FirstName" placeholder="Enter First Name">
+        <ValidationMessage For="@(()=> registrationModel.FirstName)" />
+    </div>
+
+    <div class="form-group">
+        <label>Last Name</label>
+        <input class="form-control" @bind-value="@registrationModel.LastName" placeholder="Enter Last Name">
+        <ValidationMessage For="@(()=> registrationModel.LastName)" />
+    </div>
+
+    <div class="mt-2 form-group">
+        <label>Gender</label>
+        <div class="d-flex flex-row">
+            <div class="d-flex gap-2">
+                <div class="form-check">
+                    <input @onchange="@(()=> registrationModel.Gender="male")" class="form-check-input" type="radio" name="flexRadioDefault">
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Male
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input @onchange="@(()=> registrationModel.Gender="female")" class="form-check-input" type="radio" name="flexRadioDefault">
+                    <label class="form-check-label" for="flexRadioDefault2">
+                        Female
+                    </label>
+                </div>
+            </div>
+        </div>
+        <ValidationMessage For="@(()=> registrationModel.Gender)" />
+    </div>
+
+    <div class="form-group">
+        <label>Email address</label>
+        <input type="email" @bind-value="@registrationModel.Email" class="form-control" placeholder="Enter email">
+        <ValidationMessage For="@(()=> registrationModel.Email)" />
+    </div>
+    <div class="mt-2 form-group">
+        <label>Password</label>
+        <input type="password" @bind-value="@registrationModel.Password" class="form-control" placeholder="Password">
+        <ValidationMessage For="@(()=> registrationModel.Password)" />
+    </div>
+    <div class="mt-2 form-group">
+        <label>Confirm Password</label>
+        <input type="password" @bind-value="@registrationModel.ConfirmPassword" class="form-control" placeholder="Confirm Password">
+        <ValidationMessage For="@(()=> registrationModel.ConfirmPassword)" />
+    </div>
+
+    <div class="mt-2 text-end">
+        <NavLink class="nav-link" href="/">
+            <span>Already have account?</span>
+        </NavLink>
+    </div>
+
+    <div class="text-center mt-2">
+        <button class="btn btn-primary" type="submit">
+            <span class="@_spinnerClass" role="status" aria-hidden="true"></span>
+            Register
+        </button>
+    </div>
+</EditForm>
+@code {
+    RegisterUser registrationModel = new();
+    private string _spinnerClass = "";
+    private string _userAvatar = "images/user.png";
+    private string _imageBase64Data;
+    private async void Submit()
+    {
+        _spinnerClass = "spinner-border spinner-border-sm";
+
+        if (!string.IsNullOrWhiteSpace(_imageBase64Data))
+        {
+            registrationModel.UserAvatar = _imageBase64Data;
+        }
+
+        var response = await AppService.RegisterUser(registrationModel);
+        if (response.IsSuccess)
+        {
+            await App.Current.MainPage.DisplayAlert("Success", "User Registered.", "OK");
+        }
+        else
+        {
+            await App.Current.MainPage.DisplayAlert("Oops", response.Message, "OK");
+        }
+        _spinnerClass = "";
+        this.StateHasChanged();
+    }
+
+    private async void DisplayAction()
+    {
+        string response = await App.Current.MainPage.DisplayActionSheet("Select Option", "OK", null, "Take Photo", "Add Photo");
+
+        if (response == "Take Photo")
+        {
+            if (MediaPicker.Default.IsCaptureSupported)
+            {
+                var photo = await MediaPicker.Default.CapturePhotoAsync();
+                if (photo != null)
+                {
+                    byte[] imageBytes;
+                    var newFile = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                    var stream = await photo.OpenReadAsync();
+
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        stream.CopyTo(ms);
+                        imageBytes = ms.ToArray();
+                    }
+                    _imageBase64Data = Convert.ToBase64String(imageBytes);
+                    _userAvatar = string.Format("data:image/png;base64,{0}", _imageBase64Data);
+                    this.StateHasChanged();
+                }
+            }
+        }
+        else if (response == "Add Photo")
+        {
+            var photo = await MediaPicker.Default.PickPhotoAsync();
+            if (photo != null)
+            {
+                byte[] imageBytes;
+                var newFile = Path.Combine(FileSystem.CacheDirectory, photo.FileName);
+                var stream = await photo.OpenReadAsync();
+
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    stream.CopyTo(ms);
+                    imageBytes = ms.ToArray();
+                }
+                _imageBase64Data = Convert.ToBase64String(imageBytes);
+                _userAvatar = string.Format("data:image/png;base64,{0}", _imageBase64Data);
+                this.StateHasChanged();
+            }
+        }
+    }
+
+}

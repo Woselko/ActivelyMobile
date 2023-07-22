@@ -1,0 +1,52 @@
+﻿@page "/";
+@using Actively.Models
+@using Actively.Services
+@using Newtonsoft.Json
+@using System.IdentityModel.Tokens.Jwt
+@inject NavigationManager NavManager;
+@inject IAppService AppService
+<h3>AppLaunch</h3>
+
+Loading....
+
+@code {
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        string userDetailsStr = await SecureStorage.GetAsync(nameof(Settings.UserBasicDetail));
+
+        if (!string.IsNullOrWhiteSpace(userDetailsStr))
+        {
+            var userBasicDetail = JsonConvert.DeserializeObject<UserBasicDetail>(userDetailsStr);
+
+            var handler = new JwtSecurityTokenHandler();
+            var jsontoken = handler.ReadToken(userBasicDetail.AccessToken) as JwtSecurityToken;
+            Settings.UserBasicDetail = userBasicDetail;
+
+            if (jsontoken.ValidTo < DateTime.UtcNow)
+            {
+                bool isTokenRefreshed = await AppService.RefreshToken();
+
+                if (isTokenRefreshed)
+                {
+                    NavManager.NavigateTo("/dashboard");
+                }
+                else
+                {
+                    NavManager.NavigateTo("/login");
+                }
+
+            }
+            else
+            {
+                NavManager.NavigateTo("/dashboard");
+            }
+        }
+        else
+        {
+            NavManager.NavigateTo("/login");
+        }
+
+    }
+}

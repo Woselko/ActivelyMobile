@@ -1,4 +1,5 @@
 ﻿using Actively.Data;
+using Actively.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Actively
@@ -18,10 +19,12 @@ namespace Actively
             builder.Services.AddMauiBlazorWebView();
 
 #if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
+		    builder.Services.AddBlazorWebViewDeveloperTools();
+		    builder.Logging.AddDebug();
 #endif
 
+
+            builder.Services.AddSingleton<IAppService, AppService>();
             builder.Services.AddSingleton<WeatherForecastService>();
 
             return builder.Build();
