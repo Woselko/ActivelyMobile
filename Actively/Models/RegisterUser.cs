@@ -23,16 +23,22 @@ namespace Actively.Models
         [Required(ErrorMessage = "ConfirmPassword is required")]
         public string? ConfirmPassword { get; set; } = null!;//ok
 
-        [Required(ErrorMessage = "Gender is required")]
+        [Required(ErrorMessage = "FirstName is required")]
         public string? FirstName { get; set; } //ok
 
-        [Required(ErrorMessage = "Gender is required")]
+        [Required(ErrorMessage = "LastName is required")]
         public string? LastName { get; set; }//ok
 
         [Required(ErrorMessage = "Gender is required")]
-        public string? Gender { get; set; }//ok
+        public Gender Gender { get; set; }//ok
 
         public string? UserAvatar { get; set; }//ok
         public string? Address { get; set; }
+    }
+
+    public enum Gender
+    {
+        Male,
+        Female
     }
 }

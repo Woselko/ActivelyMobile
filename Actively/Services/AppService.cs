@@ -30,6 +30,7 @@ namespace Actively.Services
             return returnResponse;
         }
 
+        //Akcja wymagajaca autoryzacji token w Headerze requestu
         //public async Task<List<StudentModel>> GetAllStudents()
         //{
         //    var returnResponse = new List<StudentModel>();
