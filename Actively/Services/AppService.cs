@@ -30,40 +30,79 @@ namespace Actively.Services
             return returnResponse;
         }
 
-        //Akcja wymagajaca autoryzacji token w Headerze requestu
-        //public async Task<List<StudentModel>> GetAllStudents()
-        //{
-        //    var returnResponse = new List<StudentModel>();
-        //    using (var client = new HttpClient())
-        //    {
-        //        var url = $"{Setting.BaseUrl}{Apis.GetAllStudents}";
+        public async Task<List<string>> GetSupportedLanguages()
+        {
+            var languageList = new List<string>();
+            using (var client = new HttpClient())
+            {
+                var url = $"{Settings.BaseUrl}{Apis.GetSupportedCultures}";
 
-        //        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Setting.UserBasicDetail?.AccessToken}");
-        //        var response = await client.GetAsync(url);
 
-        //        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        //        {
-        //            bool isTokenRefreshed = await RefreshToken();
-        //            if (isTokenRefreshed) return await GetAllStudents();
-        //        }
-        //        else
-        //        {
-        //            if (response.IsSuccessStatusCode)
-        //            {
-        //                string contentStr = await response.Content.ReadAsStringAsync();
-        //                var mainResponse = JsonConvert.DeserializeObject<Response>(contentStr);
-        //                if (mainResponse.IsSuccess)
-        //                {
-        //                    returnResponse = JsonConvert.DeserializeObject<List<StudentModel>>(mainResponse.Content.ToString());
-        //                }
-        //            }
-        //        }
+                var response = await client.GetAsync(url);
 
-        //    }
-        //    return returnResponse;
-        //}
+                if (response.IsSuccessStatusCode)
+                {
+                    string contentStr = await response.Content.ReadAsStringAsync();
+                    languageList = JsonConvert.DeserializeObject <List<string>>(contentStr);
+                }
+            }
+            return languageList;
+        }
 
-        public async Task<bool> RefreshToken()
+		public async Task<Response> ChangeLanguage(string language)
+        {
+			var returnResponse = new Response();
+			using (var client = new HttpClient())
+			{
+				var url = $"{Settings.BaseUrl}{Apis.ChangeLanguage}";
+
+                var serializedStr = JsonConvert.SerializeObject(language);
+
+                var response = await client.PostAsync(url, new StringContent(serializedStr, Encoding.UTF8, "application/json"));
+                if (response.IsSuccessStatusCode)
+				{
+					string contentStr = await response.Content.ReadAsStringAsync();
+					returnResponse = JsonConvert.DeserializeObject<Response>(contentStr);
+				}
+			}
+			return returnResponse;
+		}
+		
+
+		//Akcja wymagajaca autoryzacji token w Headerze requestu
+		//public async Task<List<StudentModel>> GetAllStudents()
+		//{
+		//    var returnResponse = new List<StudentModel>();
+		//    using (var client = new HttpClient())
+		//    {
+		//        var url = $"{Setting.BaseUrl}{Apis.GetAllStudents}";
+
+		//        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Setting.UserBasicDetail?.AccessToken}");
+		//        var response = await client.GetAsync(url);
+
+		//        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+		//        {
+		//            bool isTokenRefreshed = await RefreshToken();
+		//            if (isTokenRefreshed) return await GetAllStudents();
+		//        }
+		//        else
+		//        {
+		//            if (response.IsSuccessStatusCode)
+		//            {
+		//                string contentStr = await response.Content.ReadAsStringAsync();
+		//                var mainResponse = JsonConvert.DeserializeObject<Response>(contentStr);
+		//                if (mainResponse.IsSuccess)
+		//                {
+		//                    returnResponse = JsonConvert.DeserializeObject<List<StudentModel>>(mainResponse.Content.ToString());
+		//                }
+		//            }
+		//        }
+
+		//    }
+		//    return returnResponse;
+		//}
+
+		public async Task<bool> RefreshToken()
         {
             bool isTokenRefreshed = false;
             using (var client = new HttpClient())

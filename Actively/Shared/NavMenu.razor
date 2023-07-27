@@ -1,4 +1,6 @@
 ﻿@using Actively.Models;
+@using Actively.Services
+@inject IAppService AppService;
 @inject NavigationManager NavManager;
 <div class="top-row ps-3 navbar navbar-dark">
 	<div class="container-fluid">
@@ -36,13 +38,26 @@
 				<span class="oi oi-account-logout" aria-hidden="true"></span> Sign Out
 			</NavLink>
 		</div>
+		@{
+			if (supportedLanguages != null)
+			{
+				foreach (var language in supportedLanguages)
+				{
+					<div class="nav-item px-3">
+						<NavLink class="nav-link" href="#" @onclick="() => ChangeLanguage(language.ToString())">
+							<span class="oi oi-arrow-right" aria-hidden="true"></span>@language.ToString();
+						</NavLink>
+					</div>
+				}
+			}
+		}
 	</nav>
 </div>
 
 @code {
 	private bool collapseNavMenu = true;
-
 	private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+	private List<string> supportedLanguages;
 
 	private void ToggleNavMenu()
 	{
@@ -54,5 +69,19 @@
 		SecureStorage.RemoveAll();
 		Settings.UserBasicDetail = null;
 		NavManager.NavigateTo("/login");
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		supportedLanguages = await AppService.GetSupportedLanguages();
+		base.OnInitialized();
+		this.StateHasChanged();
+	}
+
+	private async Task ChangeLanguage(string language)
+	{
+		var result = await AppService.ChangeLanguage(language);
+		await App.Current.MainPage.DisplayAlert("", result.Message, "OK");
+		this.StateHasChanged();
 	}
 }

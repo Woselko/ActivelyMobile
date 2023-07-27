@@ -12,6 +12,9 @@ namespace Actively.Services
         Task<bool> RefreshToken();
         public Task<Response> AuthenticateUser(LoginModel loginModel);
         Task<(bool IsSuccess, string Message)> RegisterUser(RegisterUser registerUser);
-        //Task<List<StudentModel>> GetAllStudents();
-    }
+        Task<List<string>> GetSupportedLanguages();
+
+        public Task<Response> ChangeLanguage(string language);
+		//Task<List<StudentModel>> GetAllStudents();
+	}
 }
