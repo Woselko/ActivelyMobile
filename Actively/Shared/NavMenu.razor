@@ -66,7 +66,7 @@
 
 	private void SignOut()
 	{
-		SecureStorage.RemoveAll();
+		SecureStorage.Remove(nameof(Settings.UserBasicDetail));
 		Settings.UserBasicDetail = null;
 		NavManager.NavigateTo("/login");
 	}

@@ -9,6 +9,8 @@ namespace Actively.Models
     public class Settings
     {
         public static UserBasicDetail UserBasicDetail { get; set; }
-        public /*const*/static string BaseUrl;/* = "https://localhost:7010";*/
+        public static string BaseUrl;/* = "https://localhost:7010";*/
+        public static string LanguageCookie { get; set; }
+
     }
 }

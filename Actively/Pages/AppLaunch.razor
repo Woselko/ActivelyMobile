@@ -15,7 +15,6 @@ Loading....
     protected async override Task OnInitializedAsync()
     {
         string userDetailsStr = await SecureStorage.GetAsync(nameof(Settings.UserBasicDetail));
-
         if (!string.IsNullOrWhiteSpace(userDetailsStr))
         {
             var userBasicDetail = JsonConvert.DeserializeObject<UserBasicDetail>(userDetailsStr);

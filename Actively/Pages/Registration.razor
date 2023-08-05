@@ -94,11 +94,11 @@
         var response = await AppService.RegisterUser(registrationModel);
         if (response.IsSuccess)
         {
-            await App.Current.MainPage.DisplayAlert("Success", "User Registered.", "OK");
+            await App.Current.MainPage.DisplayAlert("Super!", response.Message, "OK");
         }
         else
         {
-            await App.Current.MainPage.DisplayAlert("Oops", response.Message, "OK");
+            await App.Current.MainPage.DisplayAlert("Oops!", response.Message, "OK");
         }
         _spinnerClass = "";
         this.StateHasChanged();
