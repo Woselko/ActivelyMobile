@@ -77,7 +77,7 @@
         }
         else
         {
-            await App.Current.MainPage.DisplayAlert("Oops", "Invalid username or password", "OK");
+            await App.Current.MainPage.DisplayAlert("Oops!", response.Message, "OK");
         }
 
         _spinnerClass = "";

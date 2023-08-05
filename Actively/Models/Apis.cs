@@ -6,10 +6,14 @@ using System.Threading.Tasks;
 
 namespace Actively.Models
 {
-    internal class Apis
+    public class Apis
     {
         public const string AuthenticateUser = "/Authentication/Login";
         public const string RegisterUser = "/Authentication/Register";
         public const string RefreshToken = "/Authentication/RefreshToken";
+
+
+        public const string GetSupportedCultures = "/Language/GetSupportedCultures";
+        public const string ChangeLanguage = "/Language/ChangeLanguageApi";
     }
 }
