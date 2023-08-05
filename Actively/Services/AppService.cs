@@ -57,60 +57,61 @@ namespace Actively.Services
 				var url = $"{Settings.BaseUrl}{Apis.ChangeLanguage}";
 
 				var serializedStr = JsonConvert.SerializeObject(language);
-				var response = await client.PostAsync(url, new StringContent(serializedStr, Encoding.UTF8, "application/json"));
+                var response = await client.PostAsync(url, new StringContent(serializedStr, Encoding.UTF8, "application/json"));
 
-				if (response.IsSuccessStatusCode)
-				{
+                if (response.IsSuccessStatusCode)
+                {
 					succes = true;
 					string FIRSTcontentStr = await response.Content.ReadAsStringAsync();
 					returnResponse = JsonConvert.DeserializeObject<Response>(FIRSTcontentStr);
 				}
-			}
+            }
+
 			if(succes)
 			{
                 Uri uri = new Uri(Settings.BaseUrl);
                 IEnumerable<Cookie> responseCookies = cookies.GetCookies(uri).Cast<Cookie>();
                 foreach (Cookie cookie in responseCookies)
                     cookies.Add(uri, cookie);
-				CookieContainerFactory.SaveCookiesToSecureStorage(cookies);
+				await CookieContainerFactory.SaveCookiesToSecureStorage(cookies);
             }
-			return returnResponse;
-		}
+            return returnResponse;
+        }
 
 		//Akcja wymagajaca autoryzacji token w Headerze requestu
-		//public async Task<List<StudentModel>> GetAllStudents()
-		//{
-		//    var returnResponse = new List<StudentModel>();
-		//    using (var client = new HttpClient())
-		//    {
-		//        var url = $"{Setting.BaseUrl}{Apis.GetAllStudents}";
+        //public async Task<List<StudentModel>> GetAllStudents()
+        //{
+        //    var returnResponse = new List<StudentModel>();
+        //    using (var client = new HttpClient())
+        //    {
+        //        var url = $"{Setting.BaseUrl}{Apis.GetAllStudents}";
 
-		//        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Setting.UserBasicDetail?.AccessToken}");
-		//        var response = await client.GetAsync(url);
+        //        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {Setting.UserBasicDetail?.AccessToken}");
+        //        var response = await client.GetAsync(url);
 
-		//        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-		//        {
-		//            bool isTokenRefreshed = await RefreshToken();
-		//            if (isTokenRefreshed) return await GetAllStudents();
-		//        }
-		//        else
-		//        {
-		//            if (response.IsSuccessStatusCode)
-		//            {
-		//                string contentStr = await response.Content.ReadAsStringAsync();
-		//                var mainResponse = JsonConvert.DeserializeObject<Response>(contentStr);
-		//                if (mainResponse.IsSuccess)
-		//                {
-		//                    returnResponse = JsonConvert.DeserializeObject<List<StudentModel>>(mainResponse.Content.ToString());
-		//                }
-		//            }
-		//        }
+        //        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        //        {
+        //            bool isTokenRefreshed = await RefreshToken();
+        //            if (isTokenRefreshed) return await GetAllStudents();
+        //        }
+        //        else
+        //        {
+        //            if (response.IsSuccessStatusCode)
+        //            {
+        //                string contentStr = await response.Content.ReadAsStringAsync();
+        //                var mainResponse = JsonConvert.DeserializeObject<Response>(contentStr);
+        //                if (mainResponse.IsSuccess)
+        //                {
+        //                    returnResponse = JsonConvert.DeserializeObject<List<StudentModel>>(mainResponse.Content.ToString());
+        //                }
+        //            }
+        //        }
 
-		//    }
-		//    return returnResponse;
-		//}
+        //    }
+        //    return returnResponse;
+        //}
 
-		public async Task<bool> RefreshToken()
+        public async Task<bool> RefreshToken()
         {
             bool isTokenRefreshed = false;
             using (var client = new HttpClient())
@@ -153,9 +154,9 @@ namespace Actively.Services
         public async Task<(bool IsSuccess, string Message)> RegisterUser(RegisterUser registerUser)
         {
             string message = string.Empty;
-            var url = $"{Settings.BaseUrl}{Apis.RegisterUser}";
+                var url = $"{Settings.BaseUrl}{Apis.RegisterUser}";
 
-            var serializedStr = JsonConvert.SerializeObject(registerUser);
+                var serializedStr = JsonConvert.SerializeObject(registerUser);
             var response = await _httpClient.PostAsync(url, new StringContent(serializedStr, Encoding.UTF8, "application/json"));
  
             string contentStr = await response.Content.ReadAsStringAsync();
